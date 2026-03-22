@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌾 AI Crop Yield Predictor</title>
+  <meta name="description" content="AI-powered crop yield prediction and optimization system using machine learning. Enter your field conditions to get accurate yield forecasts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <base href="/" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- ── Animated Background ─────────────────────────────── -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">
+        <span class="logo-icon">🌾</span>
+        <span class="logo-text">CropAI</span>
+      </div>
+      <nav class="nav-badges">
+        <span class="badge badge-green" id="model-badge">Loading model…</span>
+        <span class="badge badge-blue">ML Powered</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Hero ────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-tag">AI-Powered Agricultural Intelligence</div>
+      <h1 class="hero-title">Predict &amp; Optimize<br /><span class="gradient-text">Crop Yield</span></h1>
+      <p class="hero-sub">Enter your field conditions below. Our machine learning system will forecast your yield and recommend the best farming strategy.</p>
+    </div>
+  </section>
+
+  <!-- ── Main Content ─────────────────────────────────────── -->
+  <main class="main container">
+
+    <!-- ═══ Input Form Card ═══ -->
+    <section class="card form-card" aria-label="Input form">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <h2 class="card-title">Field Conditions</h2>
+          <p class="card-sub">Fill in the details about your farm</p>
+        </div>
+      </div>
+
+      <form id="cropForm" novalidate>
+        <div class="grid-2">
+
+          <!-- Region -->
+          <div class="field-group">
+            <label for="region" class="field-label">🗺️ Region</label>
+            <select id="region" name="Region" class="field-input" required>
+              <option value="">Select region…</option>
+              <option>North</option>
+              <option>South</option>
+              <option>East</option>
+              <option>West</option>
+            </select>
+          </div>
+
+          <!-- Soil Type -->
+          <div class="field-group">
+            <label for="soilType" class="field-label">🪨 Soil Type</label>
+            <select id="soilType" name="Soil_Type" class="field-input" required>
+              <option value="">Select soil type…</option>
+              <option>Sandy</option>
+              <option>Clay</option>
+              <option>Loam</option>
+              <option>Silt</option>
+              <option>Peaty</option>
+              <option>Chalky</option>
+            </select>
+          </div>
+
+          <!-- Crop Type -->
+          <div class="field-group">
+            <label for="cropType" class="field-label">🌱 Crop Type</label>
+            <select id="cropType" name="Crop_Type" class="field-input" required>
+              <option value="">Select crop…</option>
+              <option>Wheat</option>
+              <option>Rice</option>
+              <option>Maize</option>
+              <option>Barley</option>
+              <option>Soybean</option>
+              <option>Cotton</option>
+              <option>Sugarcane</option>
+              <option>Coffee</option>
+            </select>
+          </div>
+
+          <!-- Weather Condition -->
+          <div class="field-group">
+            <label for="weather" class="field-label">🌤️ Weather Condition</label>
+            <select id="weather" name="Weather_Condition" class="field-input" required>
+              <option value="">Select weather…</option>
+              <option>Sunny</option>
+              <option>Rainy</option>
+              <option>Cloudy</option>
+              <option>Windy</option>
+            </select>
+          </div>
+
+          <!-- Rainfall -->
+          <div class="field-group">
+            <label for="rainfall" class="field-label">🌧️ Rainfall (mm)</label>
+            <input type="number" id="rainfall" name="Rainfall_mm" class="field-input"
+                   placeholder="e.g. 500" min="0" max="3000" step="1" required />
+          </div>
+
+          <!-- Temperature -->
+          <div class="field-group">
+            <label for="temperature" class="field-label">🌡️ Temperature (°C)</label>
+            <input type="number" id="temperature" name="Temperature_Celsius" class="field-input"
+                   placeholder="e.g. 25" min="-10" max="60" step="0.1" required />
+          </div>
+
+          <!-- Days to Harvest -->
+          <div class="field-group">
+            <label for="days" class="field-label">📅 Days to Harvest</label>
+            <input type="number" id="days" name="Days_to_Harvest" class="field-input"
+                   placeholder="e.g. 90" min="1" max="365" step="1" required />
+          </div>
+
+        </div><!-- /grid-2 -->
+
+        <!-- Toggles row -->
+        <div class="toggles-row">
+          <!-- Fertilizer -->
+          <div class="toggle-group">
+            <span class="toggle-label">🧪 Fertilizer Used</span>
+            <div class="toggle-wrap">
+              <button type="button" class="toggle-btn active" id="fertYes" data-field="fertilizer" data-val="Yes">Yes</button>
+              <button type="button" class="toggle-btn" id="fertNo" data-field="fertilizer" data-val="No">No</button>
+            </div>
+          </div>
+          <!-- Irrigation -->
+          <div class="toggle-group">
+            <span class="toggle-label">💧 Irrigation Used</span>
+            <div class="toggle-wrap">
+              <button type="button" class="toggle-btn active" id="irrYes" data-field="irrigation" data-val="Yes">Yes</button>
+              <button type="button" class="toggle-btn" id="irrNo" data-field="irrigation" data-val="No">No</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div id="formError" class="error-banner hidden" role="alert"></div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="submit" id="predictBtn" class="btn btn-primary" form="cropForm">
+            <span class="btn-icon">🔮</span>
+            <span class="btn-text">Predict Yield</span>
+          </button>
+          <button type="button" id="optimizeBtn" class="btn btn-secondary">
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">Optimize Conditions</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ═══ Results Area ═══ -->
+    <div id="resultsArea" class="results-area hidden">
+
+      <!-- Prediction Result -->
+      <section id="predictionCard" class="card result-card hidden" aria-live="polite">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <div>
+            <h2 class="card-title">Prediction Result</h2>
+            <p class="card-sub">Based on your field conditions</p>
+          </div>
+        </div>
+        <div class="yield-display">
+          <div class="yield-number"><span id="yieldValue">0.00</span></div>
+          <div class="yield-unit">tons / hectare</div>
+        </div>
+        <div class="yield-bar-wrap">
+          <div class="yield-bar" id="yieldBar"></div>
+        </div>
+        <div class="yield-interpretation" id="yieldInterpret"></div>
+      </section>
+
+      <!-- Optimization Result -->
+      <section id="optimizationCard" class="card result-card hidden" aria-live="polite">
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <div>
+            <h2 class="card-title">Optimization Results</h2>
+            <p class="card-sub">Fertilizer × Irrigation analysis</p>
+          </div>
+        </div>
+
+        <!-- Best recommendation -->
+        <div class="best-combo" id="bestCombo"></div>
+
+        <!-- Chart -->
+        <div class="chart-wrap">
+          <canvas id="optChart" aria-label="Optimization bar chart"></canvas>
+        </div>
+
+        <!-- Table -->
+        <div class="opt-table-wrap">
+          <table class="opt-table" id="optTable">
+            <thead>
+              <tr>
+                <th>Fertilizer</th>
+                <th>Irrigation</th>
+                <th>Predicted Yield (t/ha)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="optTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /resultsArea -->
+
+    <!-- ═══ Model Info Panel ═══ -->
+    <section class="card info-card" id="modelInfoCard">
+      <div class="card-header">
+        <div class="card-icon">🤖</div>
+        <div>
+          <h2 class="card-title">Model Performance</h2>
+          <p class="card-sub">Comparison of trained ML models</p>
+        </div>
+      </div>
+      <div id="modelInfoContent" class="info-loading">Loading model information…</div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>🌾 <strong>CropAI</strong> — AI-Powered Agricultural Intelligence &nbsp;|&nbsp; Built with FastAPI &amp; Scikit-Learn</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

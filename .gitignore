@@ -26,3 +26,26 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ML model artifacts (regenerated at build time)
+models/*.pkl
+models/results.json
+models/feature_importance.json
+
+# Dataset (download separately from Kaggle)
+data/raw/*.csv
+
+# Generated plots
+outputs/
+
+# IDE
+.vscode/
+.idea/
