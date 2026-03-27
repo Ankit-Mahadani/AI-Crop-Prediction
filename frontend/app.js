@@ -216,6 +216,66 @@ function renderOptimization(result) {
   optCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
+// ── Real-Time Weather ──────────────────────────────────────────────────────
+const fetchWeatherBtn = document.getElementById("fetchWeatherBtn");
+const cityInput = document.getElementById("cityInput");
+
+fetchWeatherBtn.addEventListener("click", async () => {
+  const city = cityInput.value.trim();
+  if (!city) {
+    showError("Please enter a city name to fetch weather.");
+    return;
+  }
+  
+  fetchWeatherBtn.classList.add("loading");
+  fetchWeatherBtn.disabled = true;
+  formError.classList.add("hidden");
+  
+  try {
+    // 1. Geocode
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.results || geoData.results.length === 0) {
+      throw new Error("City not found.");
+    }
+    const { latitude, longitude, name, country } = geoData.results[0];
+    
+    // 2. Weather
+    const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&daily=precipitation_sum&timezone=auto&past_days=30`);
+    const wData = await wRes.json();
+    
+    const tempInput = document.getElementById("temperature");
+    const rainInput = document.getElementById("rainfall");
+    const daysInput = document.getElementById("days");
+    
+    tempInput.value = wData.current.temperature_2m;
+    
+    const pastRain = wData.daily.precipitation_sum.filter(r => r !== null).reduce((a, b) => a + b, 0);
+    const days = parseFloat(daysInput.value) || 90;
+    // Estimate total rainfall over crop duration based on past 30 days average
+    const estRainfall = (pastRain / 30) * days;
+    rainInput.value = Math.max(10, Math.round(estRainfall));
+    
+    cityInput.value = `${name}, ${country}`;
+    
+    // Flash inputs to show they updated
+    tempInput.style.transition = "background-color 0.3s";
+    rainInput.style.transition = "background-color 0.3s";
+    tempInput.style.backgroundColor = "rgba(74,222,128,0.2)";
+    rainInput.style.backgroundColor = "rgba(74,222,128,0.2)";
+    setTimeout(() => {
+      tempInput.style.backgroundColor = "";
+      rainInput.style.backgroundColor = "";
+    }, 800);
+    
+  } catch (ex) {
+    showError(`❌ Weather API: ${ex.message}`);
+  } finally {
+    fetchWeatherBtn.classList.remove("loading");
+    fetchWeatherBtn.disabled = false;
+  }
+});
+
 // ── Predict ────────────────────────────────────────────────────────────────
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -279,6 +339,60 @@ optimizeBtn.addEventListener("click", async () => {
   } finally {
     optimizeBtn.classList.remove("loading");
     optimizeBtn.disabled = false;
+  }
+});
+
+// ── Recommend Crop ─────────────────────────────────────────────────────────
+const recommendCropBtn = document.getElementById("recommendCropBtn");
+const recCard          = document.getElementById("recommendationCard");
+
+recommendCropBtn.addEventListener("click", async () => {
+  formError.classList.add("hidden");
+  
+  const data = collectFormData();
+  data.Crop_Type = "Wheat"; // dummy bypass for validation
+  const err = validateForm(data);
+  if (err) { showError(err); return; }
+  
+  recommendCropBtn.classList.add("loading");
+  recommendCropBtn.disabled = true;
+  
+  try {
+    const res = await fetch(`${API_BASE}/recommend-crop`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.detail || "Recommendation failed");
+    }
+    const result = await res.json();
+    
+    // Render setup
+    const tbody = document.getElementById("recommendTableBody");
+    tbody.innerHTML = "";
+    
+    result.forEach((item, index) => {
+      const tr = document.createElement("tr");
+      if (index === 0) tr.classList.add("best-row");
+      tr.innerHTML = `
+        <td>#${index + 1} ${index === 0 ? '🏆' : ''}</td>
+        <td><strong>${item.crop}</strong></td>
+        <td><strong style="color: ${index === 0 ? 'var(--green)' : 'inherit'}">${item.predicted_yield.toFixed(4)}</strong></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    
+    recCard.classList.remove("hidden");
+    resultsArea.classList.remove("hidden");
+    recCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    
+  } catch (ex) {
+    showError(`❌ ${ex.message}`);
+  } finally {
+    recommendCropBtn.classList.remove("loading");
+    recommendCropBtn.disabled = false;
   }
 });
 

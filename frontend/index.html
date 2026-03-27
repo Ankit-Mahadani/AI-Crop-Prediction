@@ -102,6 +102,15 @@
             </select>
           </div>
 
+          <!-- City (Live Weather) -->
+          <div class="field-group" style="grid-column: 1 / -1;">
+            <label for="cityInput" class="field-label">🌍 Target City (Auto-fill Weather)</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="cityInput" class="field-input" placeholder="Enter city name..." style="flex: 1;" />
+              <button type="button" id="fetchWeatherBtn" class="btn btn-secondary" style="white-space: nowrap; padding: 0 20px;">Get Live Weather</button>
+            </div>
+          </div>
+
           <!-- Weather Condition -->
           <div class="field-group">
             <label for="weather" class="field-label">🌤️ Weather Condition</label>
@@ -170,6 +179,10 @@
             <span class="btn-icon">⚡</span>
             <span class="btn-text">Optimize Conditions</span>
           </button>
+          <button type="button" id="recommendCropBtn" class="btn btn-secondary">
+            <span class="btn-icon">🌱</span>
+            <span class="btn-text">Suggest Best Crop</span>
+          </button>
         </div>
       </form>
     </section>
@@ -226,6 +239,29 @@
               </tr>
             </thead>
             <tbody id="optTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Crop Recommendation Result -->
+      <section id="recommendationCard" class="card result-card hidden" aria-live="polite">
+        <div class="card-header">
+          <div class="card-icon">🌱</div>
+          <div>
+            <h2 class="card-title">Top Recommended Crops</h2>
+            <p class="card-sub">Best yields for your soil and weather</p>
+          </div>
+        </div>
+        <div class="opt-table-wrap" style="margin-top: 1rem;">
+          <table class="opt-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Crop Type</th>
+                <th>Predicted Yield (t/ha)</th>
+              </tr>
+            </thead>
+            <tbody id="recommendTableBody"></tbody>
           </table>
         </div>
       </section>

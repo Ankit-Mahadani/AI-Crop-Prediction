@@ -109,6 +109,26 @@ def optimize_yield(input_dict: dict) -> dict:
     }
 
 
+def recommend_top_crops(input_dict: dict) -> list:
+    """
+    Evaluate all crop types for the given conditions and return the top 3.
+    """
+    crops = ['Barley', 'Coffee', 'Cotton', 'Maize', 'Rice', 'Soybean', 'Sugarcane', 'Wheat']
+    results = []
+    
+    for crop in crops:
+        inp = dict(input_dict)
+        inp["Crop_Type"] = crop
+        pred = predict_yield(inp)
+        results.append({
+            "crop": crop,
+            "predicted_yield": pred
+        })
+        
+    results.sort(key=lambda x: x["predicted_yield"], reverse=True)
+    return results[:3]
+
+
 def get_model_info() -> dict:
     """Return model results and feature importance from saved JSON files."""
     info = {}

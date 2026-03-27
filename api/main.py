@@ -15,7 +15,7 @@ from typing import Optional
 
 # Project root on path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from utils.predictor import predict_yield, optimize_yield, get_model_info, load_artifacts
+from utils.predictor import predict_yield, optimize_yield, get_model_info, load_artifacts, recommend_top_crops
 
 # ── App init ─────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -121,6 +121,21 @@ def optimize(request: OptimizeRequest):
     try:
         inp = request.model_dump()
         result = optimize_yield(inp)
+        return result
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/recommend-crop", tags=["Recommendation"])
+def recommend_crop(request: PredictRequest):
+    """
+    Recommend the top 3 crops based on soil and weather conditions.
+    """
+    try:
+        inp = request.model_dump()
+        result = recommend_top_crops(inp)
         return result
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))
