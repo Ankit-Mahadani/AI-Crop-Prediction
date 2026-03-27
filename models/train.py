@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import cross_val_score
 from xgboost import XGBRegressor
@@ -105,6 +106,14 @@ def train():
             max_depth=6, subsample=0.8,
             colsample_bytree=0.8, random_state=42,
             verbosity=0
+        ),
+        "ANN (Neural Network)": MLPRegressor(
+            hidden_layer_sizes=(100, 50),
+            activation="relu",
+            solver="adam",
+            max_iter=500,
+            random_state=42,
+            early_stopping=True
         ),
     }
 
